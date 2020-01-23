@@ -1,109 +1,71 @@
-const diceContainer = document.querySelector("#dice-container");
-
-// define class Die
+// create class
 class Die {
-  constructor() {
-    // create die div and setting styling and adding classes
+  constructor(div, value) {
+    this.value = value;
+    this.div = div;
+  }
+
+  // create call method. during instatiating adding event listeners for double and signle click.
+  roll() {
     this.div = document.createElement("div");
-    this.div.style.width = "60px";
-    this.div.style.height = "60px";
-    this.div.style.backgroundImage =
-      "url('/img/blank-dice-png.png') no-repeat center center fixed";
-
+    this.value = this.randNum();
+    this.div.innerText = this.value;
+    this.div.id = "square";
     this.div.classList.add(
-      "border",
-      "shadow-sm",
-      "p-3",
-      "bg-white",
-      "rounded",
-      // "mr-auto",
-      "mb-5",
-      "col-md-3",
-      "die"
+      "shadow",
+      "text-secondary",
+      "d-flex",
+      "align-items-center",
+      "die",
+      "justify-content-center"
     );
-
-    // adding die div to DOM
     diceContainer.appendChild(this.div);
 
-    // add event listener to created die
-    this.div.addEventListener("dblclick", removeDie);
-    this.div.addEventListener("click", rollOneDie);
+    // add event listener for single click
+    this.div.addEventListener("click", () => {
+      this.reroll();
+    });
 
-    // calling roll method
-    this.roll();
+    // add event listener for double click
+    this.div.addEventListener("dblclick", () => {
+      allDie.splice(allDie.indexOf(this), 1);
+      this.div.remove();
+    });
   }
-  // roll method which create random die number and adding that number to div
-  roll() {
-    let dieNumber = Math.floor(Math.random() * 6) + 1;
-    this.div.innerText = `${dieNumber}`;
-    this.dieValue = dieNumber;
+  // method for creating random number between 1 and 6
+  randNum() {
+    return Math.floor(Math.random() * 6) + 1;
   }
-}
-
-const button = document.getElementById("add-new-die");
-const reRoll = document.getElementById("re-roll");
-const sumOfDice = document.getElementById("sum-dice");
-
-button.addEventListener("click", insertNewDie);
-reRoll.addEventListener("click", reRollDice);
-sumOfDice.addEventListener("click", sumDice);
-
-let dieCounter = 0;
-let totalNumberOfDice = [];
-
-// insert new die
-function insertNewDie() {
-  let die = new Die();
-  totalNumberOfDice.push(die);
-  console.log(totalNumberOfDice);
-}
-
-// roll the dice (create new values)
-function reRollDice() {
-  newDieValue = 0;
-  newDie = document.querySelectorAll(".die");
-
-  for (i = 0; i < totalNumberOfDice.length; i++) {
-    newDieValue = Math.floor(Math.random() * 6) + 1;
-    totalNumberOfDice[i].dieValue = newDieValue;
-    newDie[i].innerText = newDieValue;
+  // method for updateing die values when buttun is clicked
+  reroll() {
+    this.value = this.randNum();
+    this.div.innerText = this.value;
   }
 }
 
-// sum die values
-function sumDice() {
-  newDieValue = 0;
-  sum = 0;
-  for (i = 0; i < totalNumberOfDice.length; i++) {
-    sum += totalNumberOfDice[i].dieValue;
-  }
-  alert(`Sum of dice values is: ${sum}`);
-  console.log(sum);
-}
+let allDie = [];
 
-// roll one die on click
-function rollOneDie(e) {
-  newDieValue = 0;
-  newDie = document.querySelectorAll(".die");
-  currentDieValue = e.target.innerText;
-  for (i = 0; i < totalNumberOfDice.length; i++) {
-    newDieValue = Math.floor(Math.random() * 6) + 1;
-    if (totalNumberOfDice[i].dieValue === parseInt(currentDieValue)) {
-      newDie[i].innerText = newDieValue;
-      totalNumberOfDice[i].dieValue = newDieValue;
-    }
-  }
-}
+const diceContainer = document.getElementById("dice-container");
+const addDieBtn = document.getElementById("add-new-die");
+const rerollBtn = document.getElementById("re-roll");
+const sumBtn = document.getElementById("sum-dice");
 
-// remove die on double click
-function removeDie(e) {
-  let clickedElement = e.target.innerText;
+addDieBtn.addEventListener("click", function() {
+  const die = new Die();
+  const value = die.roll();
+  allDie.push(die);
+});
 
-  for (i = 0; i < totalNumberOfDice.length; i++) {
-    if (totalNumberOfDice[i].dieValue === parseInt(clickedElement)) {
-      totalNumberOfDice.splice(i, 1);
-      e.target.remove();
-    }
+rerollBtn.addEventListener("click", function() {
+  for (let i = 0; i < allDie.length; i++) {
+    allDie[i].reroll();
   }
-  e.preventDefault();
-}
+});
+
+sumBtn.addEventListener("click", function() {
+  let sumDieValue = 0;
+  for (let i = 0; i < allDie.length; i++) {
+    sumDieValue += allDie[i].value;
+  }
+  alert(`Dice sum is: ${sumDieValue}.`);
+});
